@@ -13,7 +13,8 @@ class MathUtilsTest {
     // we have to initiate an instance of the class to be tested, auto wiring is not   going to work
     MathUtils mathUtils;
     boolean value = true;
-
+    TestInfo testInfo;
+    TestReporter testReporter;
 
     @BeforeAll
     static void initAll() { // static is a mast
@@ -21,7 +22,12 @@ class MathUtilsTest {
     }
 
     @BeforeEach
-    void init() {
+    void init(TestReporter passedTestReporter, TestInfo passedTestInfo) {
+
+           this.testInfo = passedTestInfo;
+           this.testReporter = passedTestReporter;
+
+
         mathUtils = new MathUtils();
         System.out.println(" ====> before each ");
     }
@@ -53,20 +59,31 @@ class MathUtilsTest {
 
   // +++++++++++++++++++++++++++++++++ nested tests +++++++++++++++++++++++++++++++++
     @Nested
+    @Tag("ADD")
     @DisplayName("==  testing adding  fns ==  ")
     class AddFn {
 
         @Test
+        @Tag("ADD-POSITIVE")
         @DisplayName("==  testing add positives fn ==  ")
         void  addTowPositives(){
+
+            // ************* just to show how testInfo and testReporter works *****************************************************
+            System.out.println(" testInfo ====> " + "tag: "+ testInfo.getTags() + "test name: " + testInfo.getDisplayName());
+            testReporter.publishEntry(" testReporter ====> " + " tag: "+ testInfo.getTags() + "test name: " + testInfo.getDisplayName() );
+            // ********************************************************************************************************************
+
             assertEquals(6, mathUtils.add(2,4) , "the add method should add two positives numbers "); // 3rd param is reserved for test failure
             System.out.println(" === add positives test  ====");
 
         }
 
-        @Test
+        @RepeatedTest(3) // to repeat the test 3 times
         @DisplayName("=== testing add negatives  fn ===")
-        void addTwoNegatives(){
+        void addTwoNegatives(RepetitionInfo repetitionInfo){
+
+            System.out.println(" current repetition =====> " + repetitionInfo.getCurrentRepetition());
+
             assertEquals(-6, mathUtils.add(-2,-4) , "the add method should add two negatives numbers "); // 3rd param is reserved for test failure
             System.out.println(" === add negatives test  ====");
 
@@ -75,6 +92,7 @@ class MathUtilsTest {
 
 
     @Nested
+    @Tag("MULTIPLY")
     @DisplayName(" === test multiplying fn ==== ")
     class Multiplying {
 
@@ -108,7 +126,7 @@ class MathUtilsTest {
     @Test
     @DisplayName("==  testing circleArea fn ==  ")
     void circleArea(){ ;
-        assertEquals(314.1592653589793, mathUtils.circleArea(10) );
+        assertEquals(314.1592653589793, mathUtils.circleArea(10), ()-> "it is supposed to give " + 314.1592653589793  ); // lambda is accepted to show messages
         System.out.println(" ===  circleArea  test  ====");
     }
 
